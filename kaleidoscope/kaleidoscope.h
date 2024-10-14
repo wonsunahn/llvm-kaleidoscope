@@ -12,6 +12,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
+#include "llvm/IR/Instructions.h"
 
 #include <map>
 
@@ -25,6 +26,6 @@ extern llvm::IRBuilder<> Builder;
 extern std::unique_ptr<llvm::Module> TheModule;
 
 // This map keeps track of which values are defined in the current scope
-extern std::map<std::string, llvm::Value *> NamedValues;
+extern std::map<std::string, llvm::AllocaInst*> NamedValues;
 
 #endif

@@ -1,5 +1,14 @@
 #include "ast/FunctionAST.h"
 
+/// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
+/// the function.  This is used for mutable variables etc.
+static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Function *TheFunction,
+                                          const std::string &VarName) {
+  llvm::IRBuilder<> TmpB(&TheFunction->getEntryBlock(),
+                 TheFunction->getEntryBlock().begin());
+  return TmpB.CreateAlloca(llvm::Type::getDoubleTy(TheContext), nullptr, VarName.c_str());
+}
+
 // Generates LLVM code for functions declarations
 llvm::Function *FunctionAST::codegen() {
   llvm::Function *TheFunction = TheModule->getFunction(Proto->getName());
@@ -16,7 +25,14 @@ llvm::Function *FunctionAST::codegen() {
   Builder.SetInsertPoint(BB);
   NamedValues.clear();
   for (auto &Arg : TheFunction->args()) {
-    NamedValues[Arg.getName().data()] = &Arg;
+    // Create an alloca for this variable.
+    llvm::AllocaInst *Alloca = CreateEntryBlockAlloca(TheFunction, Arg.getName());
+
+    // Store the initial value into the alloca.
+    Builder.CreateStore(&Arg, Alloca);
+
+    // Add arguments to variable symbol table.
+    NamedValues[std::string(Arg.getName())] = Alloca;
   }
 
   if (llvm::Value *RetVal = Body->codegen()) {
