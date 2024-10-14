@@ -1,22 +1,3 @@
-// lexer headers
-#include "lexer/lexer.h"
-#include "lexer/token.h"
-
-// AST headers
-#include "ast/BinaryExprAST.h"
-#include "ast/CallExprAST.h"
-#include "ast/ExprAST.h"
-#include "ast/FunctionAST.h"
-#include "ast/NumberExprAST.h"
-#include "ast/PrototypeAST.h"
-#include "ast/VariableExprAST.h"
-
-// parser headers
-#include "parser/parser.h"
-
-// logger headers
-#include "logger/logger.h"
-
 // kaleidoscope headers
 #include "kaleidoscope/kaleidoscope.h"
 
