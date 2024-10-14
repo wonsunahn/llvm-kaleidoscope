@@ -48,9 +48,9 @@ using namespace llvm;
 static void HandleDefinition() {
   if (auto FnAST = ParseDefinition()) {
     if (auto *FnIR = FnAST->codegen()) {
-      fprintf(stderr, "Read function definition:");
-      FnIR->print(errs());
-      fprintf(stderr, "\n");
+      // fprintf(stderr, "Read function definition:");
+      // FnIR->print(errs());
+      // fprintf(stderr, "\n");
     }
   } else {
     getNextToken();
@@ -60,9 +60,9 @@ static void HandleDefinition() {
 static void HandleExtern() {
   if (auto ProtoAST = ParseExtern()) {
     if (auto *FnIR = ProtoAST->codegen()) {
-      fprintf(stderr, "Read extern:");
-      FnIR->print(errs());
-      fprintf(stderr, "\n");
+      // fprintf(stderr, "Read extern:");
+      // FnIR->print(errs());
+      // fprintf(stderr, "\n");
     }
   } else {
     getNextToken();
@@ -72,9 +72,9 @@ static void HandleExtern() {
 static void HandleTopLevelExpression() {
   if (auto FnAST = ParseTopLevelExpr()) {
     if (auto *FnIR = FnAST->codegen()) {
-      fprintf(stderr, "Read top-level expression:");
-      FnIR->print(errs());
-      fprintf(stderr, "\n");
+      // fprintf(stderr, "Read top-level expression:");
+      // FnIR->print(errs());
+      // fprintf(stderr, "\n");
     }
   } else {
     getNextToken();
@@ -83,7 +83,7 @@ static void HandleTopLevelExpression() {
 
 static void MainLoop() {
   while (true) {
-    fprintf(stderr, "ready> ");
+    // fprintf(stderr, "ready> ");
 
     switch (CurTok) {
       case tok_eof:
@@ -111,14 +111,15 @@ int main() {
   BinopPrecedence['-'] = 20;
   BinopPrecedence['*'] = 40;
 
-  fprintf(stderr, "ready> ");
+  // fprintf(stderr, "ready> ");
+
   getNextToken();
 
   TheModule = std::make_unique<Module>("My awesome JIT", TheContext);
 
   MainLoop();
 
-  TheModule->print(errs(), nullptr);
+  TheModule->print(outs(), nullptr);
 
   return 0;
 }
