@@ -33,7 +33,7 @@ examples_outputs/$(1:examples/%.cpp=%).codegen.ll: examples_outputs/$(1:examples
 	-@$$< > $$@
 examples_outputs/$(1:examples/%.cpp=%).codegen.s: examples_outputs/$(1:examples/%.cpp=%).codegen.ll
 	@echo "clang -S -c $$< -o $$@"
-	-@clang -S -c $$< -o $$@
+	-@clang -Wno-override-module -S -c $$< -o $$@
 examples_outputs/$(1:examples/%.cpp=%).codegen.exe: examples_outputs/$(1:examples/%.cpp=%).codegen.s
 	@echo "clang $$< -o $$@"
 	-@clang $$< -o $$@
@@ -49,7 +49,7 @@ outputs/$(1:tests/%.mjava=%).ll: $(1) main
 	-@cat $(1) | ./main > $$@
 outputs/$(1:tests/%.mjava=%).s: outputs/$(1:tests/%.mjava=%).ll
 	@echo "clang -S -c $$< -o $$@"
-	-@clang -S -c $$< -o $$@
+	-@clang -Wno-override-module -S -c $$< -o $$@
 outputs/$(1:tests/%.mjava=%).o: outputs/$(1:tests/%.mjava=%).s
 	@echo "clang -c $$< -o $$@"
 	-@clang -c $$< -o $$@
