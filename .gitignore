@@ -2,7 +2,9 @@
 *.out
 *.dSYM
 *.o
+*.ll
+*.s
+*.exe
 
 /llvm
-.vscode
 main

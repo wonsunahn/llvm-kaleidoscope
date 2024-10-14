@@ -10,7 +10,7 @@ EXAMPLES = $(wildcard examples/*.cpp)
 EXAMPLE_OUTPUTS = $(foreach example,$(EXAMPLES),examples_outputs/$(example:examples/%.cpp=%).codegen.out)
 
 CC = clang++-18 -stdlib=libc++ -std=c++14
-CFLAGS = -g -I llvm/include -I llvm/build/include -I ./
+CFLAGS = -g -I .
 LLVMCFLAGS = `llvm-config --cxxflags`
 LLVMFLAGS = `llvm-config --cxxflags --ldflags --system-libs --libs all`
 
