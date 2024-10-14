@@ -105,6 +105,7 @@ static void MainLoop() {
 }
 
 int main() {
+  BinopPrecedence['='] = 2;
   BinopPrecedence['<'] = 10;
   BinopPrecedence['+'] = 20;
   BinopPrecedence['-'] = 20;

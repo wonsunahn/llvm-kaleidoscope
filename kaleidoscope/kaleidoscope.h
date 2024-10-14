@@ -13,6 +13,7 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
 #include "llvm/IR/Instructions.h"
+#include "ast/PrototypeAST.h"
 
 #include <map>
 
@@ -27,5 +28,9 @@ extern std::unique_ptr<llvm::Module> TheModule;
 
 // This map keeps track of which values are defined in the current scope
 extern std::map<std::string, llvm::AllocaInst*> NamedValues;
+
+extern std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
+
+llvm::Function *getFunction(std::string Name);
 
 #endif

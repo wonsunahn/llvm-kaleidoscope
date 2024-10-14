@@ -1,4 +1,5 @@
 #include "ast/PrototypeAST.h"
+#include "kaleidoscope/kaleidoscope.h"
 
 // Generates LLVM code for externals calls
 llvm::Function *PrototypeAST::codegen() {

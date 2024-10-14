@@ -3,6 +3,7 @@
 
 #include <map>
 #include "ast/BinaryExprAST.h"
+#include "ast/UnaryExprAST.h"
 #include "ast/CallExprAST.h"
 #include "ast/ExprAST.h"
 #include "ast/FunctionAST.h"
@@ -11,6 +12,7 @@
 #include "ast/VariableExprAST.h"
 #include "ast/IfExprAST.h"
 #include "ast/ForExprAST.h"
+#include "ast/VarExprAST.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 
@@ -23,6 +25,8 @@ std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec, std::unique_ptr<ExprAST> LH
 std::unique_ptr<ExprAST> ParseExpression();
 std::unique_ptr<ExprAST> ParseIfExpr();
 std::unique_ptr<ExprAST> ParseForExpr();
+std::unique_ptr<ExprAST> ParseVarExpr();
+std::unique_ptr<ExprAST> ParseUnary();
 std::unique_ptr<PrototypeAST> ParsePrototype();
 std::unique_ptr<FunctionAST> ParseDefinition();
 std::unique_ptr<FunctionAST> ParseTopLevelExpr();
