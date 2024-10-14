@@ -9,39 +9,72 @@ double NumVal;
 // It's called to return the next token from standard input
 // gettok works by calling getchar() function to read chars one at a time
 // Then it recognizes them and stores the last character read in LastChar
-int gettok() {
+int gettok()
+{
   static int LastChar = ' ';
 
   // The first thing we need to do is ignore whitespaces between tokens
-  while (isspace(LastChar)) {
+  while (isspace(LastChar))
+  {
     LastChar = getchar();
   }
 
   // Next thing is recognize identifier and specific keywords like "def"
-  if (isalpha(LastChar)) {
+  if (isalpha(LastChar))
+  {
     IdentifierStr = LastChar;
 
     // Stacking together all alphanumeric characters into IdentifierStr
-    while (isalnum(LastChar = getchar())) {
+    while (isalnum(LastChar = getchar()))
+    {
       IdentifierStr += LastChar;
     }
 
-    if (IdentifierStr == "def") {
+    if (IdentifierStr == "def")
+    {
       return tok_def;
     }
 
-    if (IdentifierStr == "extern") {
+    if (IdentifierStr == "extern")
+    {
       return tok_extern;
+    }
+
+    if (IdentifierStr == "if")
+    {
+      return tok_if;
+    }
+
+    if (IdentifierStr == "then")
+    {
+      return tok_then;
+    }
+
+    if (IdentifierStr == "else")
+    {
+      return tok_else;
+    }
+
+    if (IdentifierStr == "for")
+    {
+      return tok_for;
+    }
+
+    if (IdentifierStr == "in")
+    {
+      return tok_in;
     }
 
     return tok_identifier;
   }
 
   // Stacking together only numeric values
-  if (isdigit(LastChar) || LastChar == '.') {
+  if (isdigit(LastChar) || LastChar == '.')
+  {
     std::string NumStr;
 
-    do {
+    do
+    {
       NumStr += LastChar;
       LastChar = getchar();
     } while (isdigit(LastChar) || LastChar == '.');
@@ -54,19 +87,23 @@ int gettok() {
 
   // Handling comments by skipping to the end of the line
   // and return the next token
-  if (LastChar == '#') {
-    do {
+  if (LastChar == '#')
+  {
+    do
+    {
       LastChar = getchar();
     } while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
 
-    if (LastChar != EOF) {
+    if (LastChar != EOF)
+    {
       return gettok();
     }
   }
 
   // Finally, if the input doesn't match one of the above cases
   // it's either an operator character like '+' or the end of the file
-  if (LastChar == EOF) {
+  if (LastChar == EOF)
+  {
     return tok_eof;
   }
 
@@ -75,6 +112,7 @@ int gettok() {
   return ThisChar;
 }
 
-int getNextToken() {
+int getNextToken()
+{
   return CurTok = gettok();
 }
