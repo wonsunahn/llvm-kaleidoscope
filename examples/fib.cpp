@@ -64,33 +64,36 @@ static void generateFib()
   // Insert if (x < 3)
   llvm::Value *three = llvm::ConstantInt::get(TheContext, llvm::APInt(32, 3));
   llvm::Value *arg = funcFib->args().begin();
-  llvm::Value *cond = Builder.CreateICmpULT(arg, three, "cmptmp");
+  llvm::Value *cond = Builder.CreateICmpSLT(arg, three, "cmptmp");
   llvm::BasicBlock *ThenBB = llvm::BasicBlock::Create(TheContext, "then", funcFib);
   llvm::BasicBlock *ElseBB = llvm::BasicBlock::Create(TheContext, "else", funcFib);
   llvm::BasicBlock *MergeBB = llvm::BasicBlock::Create(TheContext, "ifcont", funcFib);
   Builder.CreateCondBr(cond, ThenBB, ElseBB);
 
 
-  // Insert ret = 1; on the then branch
+  // Populate the then branch
   Builder.SetInsertPoint(ThenBB);
+  // Insert ret = 1;
   llvm::Value* retVal = llvm::ConstantInt::get(TheContext, llvm::APInt(32, 1));
   Builder.CreateStore(retVal, retVar);
   Builder.CreateBr(MergeBB);
 
-  // Insert ret = fib(x-1) + fib(x-2); on the else branch
+  // Populate the else branch
   Builder.SetInsertPoint(ElseBB);
+  // ret = fib(x-1) + fib(x-2); on the else branch
   // Call fib(x-1);
   std::vector<llvm::Value *> firstFibParams;
   llvm::Value *argMinusOne = Builder.CreateSub(arg, llvm::ConstantInt::get(TheContext, llvm::APInt(32, 1)), "subtmp");
   firstFibParams.push_back(argMinusOne);
-  llvm::Value *firstFib = llvm::CallInst::Create(funcFib, firstFibParams, "firstFib", ElseBB);
+  llvm::Value *firstFib = Builder.CreateCall(funcFib, firstFibParams, "firstFib");
   // Call fib(x-2);
   std::vector<llvm::Value *> secondFibParams;
   llvm::Value *argMinusTwo = Builder.CreateSub(arg, llvm::ConstantInt::get(TheContext, llvm::APInt(32, 2)), "subtmp");
   secondFibParams.push_back(argMinusTwo);
-  llvm::Value *secondFib = llvm::CallInst::Create(funcFib, secondFibParams, "secondFib", ElseBB);
+  llvm::Value *secondFib = Builder.CreateCall(funcFib, secondFibParams, "secondFib");
   // Add the two fibs
   retVal = Builder.CreateAdd(firstFib, secondFib, "addtmp");
+  // Store to ret
   Builder.CreateStore(retVal, retVar);
   Builder.CreateBr(MergeBB);
   
@@ -113,18 +116,46 @@ void generateMain()
   llvm::BasicBlock *bb = llvm::BasicBlock::Create(TheContext, "entry", func);
   Builder.SetInsertPoint(bb);
 
-  // Insert ret = fib(5);
-  std::vector<llvm::Value *> fibCallParams;
-  fibCallParams.push_back(llvm::ConstantInt::get(TheContext, llvm::APInt(32, 6)));
-  llvm::Value *ret = llvm::CallInst::Create(funcFib, fibCallParams, "ret", bb);
-  
-  // Insert printf("%d\n", ret);
-  llvm::Value *str = Builder.CreateGlobalStringPtr("%d\n");
-  std::vector<llvm::Value *> callParams;
-  callParams.push_back(str);
-  callParams.push_back(ret);
-  llvm::CallInst::Create(funcPrintf, callParams, "call", bb);
+  // Define int i = 1;
+  llvm::AllocaInst *iVar = CreateEntryBlockAlloca(func, "i");
+  Builder.CreateStore(llvm::ConstantInt::get(TheContext, llvm::APInt(32, 1)), iVar);
 
+  // Create loop basic blocks and jump to loop condition evaluation basic block
+  llvm::BasicBlock *loopCondBB = llvm::BasicBlock::Create(TheContext, "loopcond", func);
+  llvm::BasicBlock *loopBodyBB = llvm::BasicBlock::Create(TheContext, "loopbody", func);
+  llvm::BasicBlock *loopEndBB = llvm::BasicBlock::Create(TheContext, "loopend", func);
+  Builder.CreateBr(loopCondBB);
+
+  // Populate loop condition
+  Builder.SetInsertPoint(loopCondBB);
+  // Insert while (i < 10)
+  llvm::Value *ten = llvm::ConstantInt::get(TheContext, llvm::APInt(32, 10));
+  llvm::Value *iVal = Builder.CreateLoad(iVar->getAllocatedType(), iVar, "i");
+  llvm::Value *cond = Builder.CreateICmpSLT(iVal, ten, "cmptmp");
+  Builder.CreateCondBr(cond, loopBodyBB, loopEndBB);
+
+  // Populate loop body
+  Builder.SetInsertPoint(loopBodyBB);
+  // Insert i++;
+  iVal = Builder.CreateLoad(iVar->getAllocatedType(), iVar, "i");
+  llvm::Value *iPlusOne = Builder.CreateAdd(iVal, llvm::ConstantInt::get(TheContext, llvm::APInt(32, 1)), "addtmp");
+  Builder.CreateStore(iPlusOne, iVar);
+  // Call fib(i);
+  std::vector<llvm::Value *> fibCallParams;
+  iVal = Builder.CreateLoad(iVar->getAllocatedType(), iVar, "i");
+  fibCallParams.push_back(iVal);
+  llvm::Value *fib = Builder.CreateCall(funcFib, fibCallParams, "fib");
+  // Insert printf("%d\n", fib(i));
+  llvm::Value *str = Builder.CreateGlobalStringPtr("%d\n");
+  std::vector<llvm::Value *> printfCallParams;
+  printfCallParams.push_back(str);
+  printfCallParams.push_back(fib);
+  Builder.CreateCall(funcPrintf, printfCallParams, "");
+  // Loop back to condition
+  Builder.CreateBr(loopCondBB);
+
+  // Populate basic block after the loop
+  Builder.SetInsertPoint(loopEndBB);
   // Insert return 0;
   llvm::Value* retVal = llvm::ConstantInt::get(TheContext, llvm::APInt(32, 0));
   Builder.CreateRet(retVal);
