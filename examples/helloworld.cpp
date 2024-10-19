@@ -26,20 +26,23 @@
 
 using namespace llvm;
 
-int main()
-{
-  TheModule = std::make_unique<Module>("helloworld.ll", TheContext);
+static llvm::Function *funcPrintf = nullptr;
 
+static void generatePrintf()
+{
   // Add printf declaration.
-  llvm::Function *funcPrintf = TheModule->getFunction("printf");
+  funcPrintf = TheModule->getFunction("printf");
   if (!funcPrintf)
   {
-    FunctionType *funcPrintfType = FunctionType::get(IntegerType::get(TheContext, 32), true);
+    llvm::FunctionType *funcPrintfType = llvm::FunctionType::get(llvm::IntegerType::get(TheContext, 32), true);
     funcPrintf = llvm::Function::Create(funcPrintfType, llvm::Function::ExternalLinkage, "printf", TheModule.get());
-    funcPrintf->setCallingConv(CallingConv::C);
+    funcPrintf->setCallingConv(llvm::CallingConv::C);
   }
+}
 
-  // Create function prototype.
+void generateMain()
+{
+  // Create main function prototype.
   llvm::FunctionType *funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(TheContext), false);
   llvm::Function *func = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, "main", TheModule.get());
 
@@ -59,6 +62,14 @@ int main()
 
   // Validate the generated function, checking for consistency.
   verifyFunction(*func);
+}
+
+int main()
+{
+  TheModule = std::make_unique<Module>("helloworld.ll", TheContext);
+
+  generatePrintf();
+  generateMain();
 
   TheModule->print(outs(), nullptr);
 
