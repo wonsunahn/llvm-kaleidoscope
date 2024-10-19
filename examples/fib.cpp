@@ -27,15 +27,6 @@
 static llvm::Function *funcPrintf = nullptr;
 static llvm::Function *funcFib = nullptr;
 
-/// CreateEntryBlockAlloca - Create an alloca instruction in the entry block of
-/// the function.  This is used for mutable variables etc.
-static llvm::AllocaInst *CreateEntryBlockAlloca(llvm::Function *TheFunction,
-                                          const std::string &VarName) {
-  llvm::IRBuilder<> TmpB(&TheFunction->getEntryBlock(),
-                 TheFunction->getEntryBlock().begin());
-  return TmpB.CreateAlloca(llvm::Type::getInt32Ty(TheContext), nullptr, VarName.c_str());
-}
-
 static void generatePrintf()
 {
   // Add printf declaration.
@@ -59,7 +50,7 @@ static void generateFib()
   llvm::BasicBlock *bb = llvm::BasicBlock::Create(TheContext, "entry", funcFib);
   Builder.SetInsertPoint(bb);
   // Define int ret;
-  llvm::AllocaInst *retVar = CreateEntryBlockAlloca(funcFib, "ret");
+  llvm::AllocaInst *retVar = Builder.CreateAlloca(llvm::Type::getInt32Ty(TheContext), nullptr, "ret");
 
   // Insert if (x < 3)
   llvm::Value *three = llvm::ConstantInt::get(TheContext, llvm::APInt(32, 3));
@@ -117,7 +108,7 @@ void generateMain()
   Builder.SetInsertPoint(bb);
 
   // Define int i = 1;
-  llvm::AllocaInst *iVar = CreateEntryBlockAlloca(func, "i");
+  llvm::AllocaInst *iVar = Builder.CreateAlloca(llvm::Type::getInt32Ty(TheContext), nullptr, "i");
   Builder.CreateStore(llvm::ConstantInt::get(TheContext, llvm::APInt(32, 1)), iVar);
 
   // Create loop basic blocks and jump to loop condition evaluation basic block
