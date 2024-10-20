@@ -24,8 +24,6 @@
 #include <string>
 #include <vector>
 
-using namespace llvm;
-
 static llvm::Function *funcPrintf = nullptr;
 
 static void generatePrintf()
@@ -51,10 +49,10 @@ void generateMain()
   Builder.SetInsertPoint(bb);
 
   // Insert printf("Hello world\n");
-  Value *str = Builder.CreateGlobalStringPtr("Hello world\n");
-  std::vector<Value *> callParams;
+  llvm::Value *str = Builder.CreateGlobalStringPtr("Hello world\n");
+  std::vector<llvm::Value *> callParams;
   callParams.push_back(str);
-  CallInst *callInst = CallInst::Create(funcPrintf, callParams, "call", bb);
+  llvm::CallInst *callInst = llvm::CallInst::Create(funcPrintf, callParams, "call", bb);
 
   // Insert return 0;
   llvm::Value* retVal = llvm::ConstantInt::get(TheContext, llvm::APInt(32, 0));
@@ -66,12 +64,12 @@ void generateMain()
 
 int main()
 {
-  TheModule = std::make_unique<Module>("helloworld.ll", TheContext);
+  TheModule = std::make_unique<llvm::Module>("helloworld.codegen.ll", TheContext);
 
   generatePrintf();
   generateMain();
 
-  TheModule->print(outs(), nullptr);
+  TheModule->print(llvm::outs(), nullptr);
 
   return 0;
 }

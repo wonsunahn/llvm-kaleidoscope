@@ -157,7 +157,7 @@ void generateMain()
 
 int main()
 {
-  TheModule = std::make_unique<llvm::Module>("fib.ll", TheContext);
+  TheModule = std::make_unique<llvm::Module>("fib.codegen.ll", TheContext);
 
   generatePrintf();
   generateFib();
